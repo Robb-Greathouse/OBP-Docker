@@ -1,22 +1,49 @@
 FROM openbankproject/obp-base
 MAINTAINER OpenBankProject <contact@openbankproject.com>
 EXPOSE 8080 8081 8082
+#To eliminate need for root priveleges and map to OpenShift 
+# /opt in original is replaced by /usr/share
+# /etc in original is replaced by /usr/etc
 # Supervisor
+#OLD
 ADD full/supervisor/*.conf /etc/supervisor/conf.d/
+#NEW
+ADD full/supervisor/*.conf /urs/etc/supervisor/conf.d/
 # Clone all repositories
+
 RUN cd /opt/OBP/ && git clone https://github.com/OpenBankProject/OBP-API.git
 RUN cd /opt/OBP/ && git clone https://github.com/OpenBankProject/Social-Finance.git
 RUN cd /opt/OBP/ && git clone https://github.com/OpenBankProject/API-Explorer.git
 # API
-ADD full/props/OBP-API.default.props /opt/OBP/OBP-API/src/main/resources/props/default.props
-ADD full/lift_proto.db.mv.db /opt/OBP/OBP-API/
-RUN cd /opt/OBP/OBP-API/ && mvn package -DskipTests
+#OLD
+#ADD full/props/OBP-API.default.props /opt/OBP/OBP-API/src/main/resources/props/default.props
+#NEW
+ADD full/props/OBP-API.default.props /usr/share/OBP-API/src/main/resources/props/default.props
+ADD full/props/OBP-API.default.props
+#OLD
+#ADD full/lift_proto.db.mv.db /opt/OBP/OBP-API/
+#NEW
+ADD full/lift_proto.db.mv.db /usr/share/OBP/OBP-API/
+#OLD
+#RUN cd /opt/OBP/OBP-API/ && mvn package -DskipTests
+RUN cd /usr/share/OBP/OBP-API/ && mvn package -DskipTests
 # Social Finance
-ADD full/props/Social-Finance.default.props /opt/OBP/Social-Finance/src/main/resources/props/default.props
-RUN cd /opt/OBP/Social-Finance/ && mvn package -DskipTests
+#OLD
+#ADD full/props/Social-Finance.default.props /opt/OBP/Social-Finance/src/main/resources/props/default.props
+ADD full/props/Social-Finance.default.props /usr/share/OBP/Social-Finance/src/main/resources/props/default.props
+#OLD  #####
+#RUN cd /opt/OBP/Social-Finance/ && mvn package -DskipTests
+RUN cd /usr/share/OBP/Social-Finance/ && mvn package -DskipTests
 # API Explorer
-ADD full/props/API-Explorer.default.props /opt/OBP/API-Explorer/src/main/resources/props/default.props
-RUN cd /opt/OBP/API-Explorer/ && mvn package -DskipTests
+#OLD  #####
+#ADD full/props/API-Explorer.default.props /opt/OBP/API-Explorer/src/main/resources/props/default.props
+#NEW
+ADD full/props/API-Explorer.default.props /usr/share/OBP/API-Explorer/src/main/resources/props/default.props
+
+#OLD
+#RUN cd /opt/OBP/API-Explorer/ && mvn package -DskipTests
+#NEW
+RUN cd /usr/share/OBP/API-Explorer/ && mvn package -DskipTests
 # Run script
 ADD full/run_obp /usr/local/sbin/
 CMD /usr/local/sbin/run_obp
